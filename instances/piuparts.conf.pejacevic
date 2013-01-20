@@ -120,7 +120,7 @@ log-file = experimental.log
 precedence = 1
 description = + Fails if there are leftover files after purge.
 piuparts-flags =
-	%(flags-leftovers)s
+	%(flags-leftovers)s --scriptsdir /etc/piuparts/scripts-leftovers --fail-on-broken-symlinks
 # Once there are no packages left which leave files on purge behind,
 # --pedantic-purge-test should be added
 distro = sid

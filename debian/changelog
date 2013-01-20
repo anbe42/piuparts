@@ -171,6 +171,7 @@ piuparts (0.51) unstable; urgency=low
     - Validate field names, and only use valid known problem conf files.
     - Minor HTML syntax fix.
     - Minor template integration.
+  * Elevate 'broken symlinks' to error status on piatti.
 
   [ Holger Levsen ]
   * piuparts.py:

@@ -379,6 +379,7 @@ linktarget_by_template = [
     ("obsolete_conffiles_issue.tpl", "but logfile reports obsolete conffiles"),
 
     ("dependency_error.tpl", "due to unsatisfied dependencies"),
+    ("broken_symlinks_error.tpl", "due to 'broken symlinks'"),
     ("packages_have_been_kept_back_error.tpl", "...and logfile also contains 'packages have been kept back'"),
     ("command_not_found_error.tpl", "due to a 'command not found' error"),
     ("files_in_usr_local_error.tpl", "due to files in /usr/local"),
@@ -406,7 +407,6 @@ linktarget_by_template = [
     ("cron_error_after_removal_error.tpl", "due to errors from cronjob after removal"),
     ("logrotate_error_after_removal_error.tpl", "due to errors from logrotate after removal"),
     ("installs_over_symlink_error.tpl", "...and package installs something over existing symlinks"),
-    ("broken_symlinks_error.tpl", "...and logfile also contains 'broken symlinks'"),
     ("inadequate_error.tpl", "due to logfile containing inadequate errors"),
     ("obsolete_conffiles_error.tpl", "...and logfile reports obsolete conffiles"),
     ("unknown_failures.tpl", "due to unclassified failures"),
