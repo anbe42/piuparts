@@ -530,6 +530,10 @@ used for all further sections.
  "http://localhost:3128") due to the high bandwidth consumption of
  piuparts and repeated downloading of the same files.
 
+* "reporting-sections" defines the sections representing the
+ stable, testing, and unstable distributions, to be summarized in
+ the qa-list.txt summary. Default: 'squeeze wheezy sid'
+
 ==== section specific configuration
 
 The section specific settings will be reloaded each time a section

@@ -431,6 +431,8 @@ class Config(piupartslib.conf.Config):
                 "max-reserved": 1,
                 "doc-root": "/",
                 "known-problem-directory": "@sharedir@/piuparts/known_problems",
+                "reporting-sections": "squeeze wheezy sid",
+                "web-host": "piuparts.debian.org",
             },
             defaults_section=defaults_section)
 
