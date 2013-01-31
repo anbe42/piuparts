@@ -421,6 +421,7 @@ class Config(piupartslib.conf.Config):
                 "output-directory": "html",
                 "master-directory": ".",
                 "depends-sections": None,
+                "master-host": "",
                 "description": "",
                 "proxy": None,
                 "mirror": None,
@@ -462,7 +463,7 @@ def html_protect(vstr):
     return vstr
 
 
-def emphasize_reason(reason):
+def is_bad_state(state):
     bad_states = [
         #"successfully-tested",
         "failed-testing",
@@ -479,7 +480,11 @@ def emphasize_reason(reason):
         "no-dependency-from-alternatives-exists",  # obsolete
         "does-not-exist",
     ]
-    if reason in bad_states:
+
+    return( state in bad_states )
+
+def emphasize_reason(reason):
+    if is_bad_state(reason):
       reason = "<em>"+reason+"</em>"
     return reason
 
@@ -1360,6 +1365,83 @@ class Section:
         self.generate_html()
         os.chdir(oldcwd)
 
+    def get_flag(self, state):
+
+        if state in ['essential-required', 'successfully-tested']:
+            flag = 'P'
+        elif state == 'failed-testing':
+            flag = 'F'
+        elif state == 'does-not-exist':
+            flag = '-'
+        elif is_bad_state(state):
+            flag = 'X'
+        else:
+            flag = 'W'
+
+        return(flag)
+
+    def worst_flag(self, *args):
+        sev = { 
+                'F': 0, # fail
+                'X': 1, # blocked by failure
+                'W': 2, # waiting
+                'P': 3, # passed, or essential
+                '-': 4, # does not exist
+              }
+
+        return(min([(sev[x],x) for x in args])[1])
+
+    def src_pkg_summ(self):
+        src_rslts = {}
+
+        db = self._binary_db
+
+        for binpkg in db.get_all_packages():
+            srcpkg = db.get_control_header(binpkg, "Source")
+
+            flag = self.get_flag( db.get_package_state(binpkg) )
+
+            if srcpkg in src_rslts:
+                src_rslts[srcpkg] = self.worst_flag(src_rslts[srcpkg], flag)
+            else:
+                src_rslts[srcpkg] = flag
+
+        return(src_rslts)
+
+def write_qalist( sec_src_rslts, output_directory,
+                  reporting_sections, master_host, doc_root ):
+
+    logging.debug("Writing qa-list.txt")
+
+    src_pkgs = set().union([y for x in sec_src_rslts for y in sec_src_rslts[x]])
+
+    sumfl = open( os.path.join( output_directory, "qa-list.txt" ), 'w' )
+
+    for src_pkg in sorted( src_pkgs ):
+        sumfl.write( "%s" % src_pkg )
+        for section in reporting_sections:
+            if section in sec_src_rslts \
+                          and src_pkg in sec_src_rslts[section]:
+                sumfl.write( " %s" % sec_src_rslts[section][src_pkg] )
+                sumfl.write( " http://%s%s/%s/source/%s/%s.html" % \
+                            ( master_host,
+                              doc_root,
+                              section,
+                              source_subdir(src_pkg),
+                              src_pkg,
+                            ) )
+            else:
+                sumfl.write( " -" )
+                sumfl.write( " http://%s%s/%s/" % \
+                            ( master_host,
+                              doc_root,
+                              section,
+                            ) )
+
+        sumfl.write( "\n" )
+
+    sumfl.close()
+
 
 def main():
     setup_logging(logging.DEBUG, None)
@@ -1381,6 +1463,8 @@ def main():
     if doc_root.endswith("/"):
         doc_root = doc_root[:-1]
 
+    sec_src_rslts = {}
+
     if os.path.exists(master_directory):
         packagedb_cache = {}
         for section_name in section_names:
@@ -1390,6 +1474,15 @@ def main():
             logging.error("Configuration Error in section '%s': %s" % (section_name, e))
           else:
             section.generate_output(output_directory=output_directory, section_names=section_names)
+
+            if section_name in global_config["reporting-sections"].split(' '):
+                sec_src_rslts[section_name] = section.src_pkg_summ()
+
+        write_qalist( sec_src_rslts,
+                      global_config['output-directory'],
+                      global_config['reporting-sections'].split(' '),
+                      global_config['master-host'],
+                      doc_root )
 
         # static pages
         logging.debug("Writing static pages")
