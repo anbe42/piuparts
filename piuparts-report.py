@@ -1481,7 +1481,7 @@ def main():
         write_qalist( sec_src_rslts,
                       global_config['output-directory'],
                       global_config['reporting-sections'].split(' '),
-                      global_config['master-host'],
+                      global_config['web-host'],
                       doc_root )
 
         # static pages

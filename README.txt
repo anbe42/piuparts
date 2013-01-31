@@ -534,6 +534,9 @@ used for all further sections.
  stable, testing, and unstable distributions, to be summarized in
  the qa-list.txt summary. Default: 'squeeze wheezy sid'
 
+* "web-host" is the host name to use for URLs in the qa-list.txt
+ summary. Default; 'piuparts.debian.org'
+
 ==== section specific configuration
 
 The section specific settings will be reloaded each time a section
