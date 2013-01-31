@@ -720,6 +720,32 @@ section, too, and will serve as defaults for all other sections
 Some of the configuration items are not required, but it is best
 to set them all to be sure what the configuration actually is.
 
+==== qa-list.txt
+
+The web reporting interface includes the file 'qa-list.txt' at the
+root, with a concise summary of the current test results, by 
+source package, for the stable, testing, and unstable repositories.
+Each line in the file contains 7 fields, separated by spaces:
+
+  Package Name
+  Stable test result
+  Stable package URL
+  Testing test result
+  Testing package URL
+  Unstable test result
+  Unstable package URL
+
+The test result is expressed as a single character, as follows:
+
+  P - Pass
+  F - Fail
+  W - Waiting to be tested
+  X - Test blocked by failure
+  - - Doesn't exist
+
+The URL points to a source package-level summary page for the
+distribution.
+
 ==== piuparts.debian.org specific configuration
 
 In addition to some of the above settings the following
