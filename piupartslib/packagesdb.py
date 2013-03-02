@@ -818,6 +818,24 @@ class PackagesDB:
         else:
             pkg.set_waiting_count(0)
 
+    def block_count(self, pkg):
+        if pkg.block_cnt is None:
+            self._calc_rrdep_pkg_counts(pkg)
+
+        return pkg.block_cnt
+
+    def rrdep_count(self, pkg):
+        if pkg.rrdep_cnt is None:
+            self._calc_rrdep_pkg_counts(pkg)
+
+        return pkg.rrdep_cnt
+
+    def waiting_count(self, pkg):
+        if pkg.waiting_cnt is None:
+            self._calc_rrdep_pkg_counts(pkg)
+
+        return pkg.waiting_cnt
+
     def calc_rrdep_counts(self):
         """Calculate recursive reverse dependency counts for Packages"""
 
