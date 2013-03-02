@@ -227,12 +227,11 @@ class FailureManager():
         self.pkgsdb = pkgsdb
 
         def keyfunc(x, pkgsdb=self.pkgsdb, logdict=self.logdict):
-
-            pkg_obj = pkgsdb.get_package(get_pkg(x.pkgspec))
-
-            if not pkg_obj is None:
-                rdeps = pkg_obj.rrdep_count()
-            else:
+            try:
+                pkg_name = get_pkg(x.pkgspec)
+                rdeps = pkgsdb.rrdep_count(
+                               pkgsdb.get_package(pkg_name))
+            except (KeyError, AttributeError):
                 rdeps = 0
 
             is_failed = get_where(logdict[x.pkgspec]) == "fail"
@@ -383,8 +382,8 @@ def update_tpl(basedir, section, problem, failures, logdict, ftpl, ptpl, pkgsdb)
 
         if not pkg_obj is None:
             src_pkg = source_pkg(pkgspec, pkgsdb)
-            rdep_cnt = pkg_obj.rrdep_count()
-        else:
+            rdep_cnt = pkgsdb.rrdep_count(pkgsdb.get_package(bin_pkg))
+        except (KeyError, AttributeError):
             src_pkg = bin_pkg
             rdep_cnt = 0
 
@@ -435,12 +434,10 @@ def update_html(section, logdict, problem_list, failures, config, pkgsdb):
                          for x in failedpkgs.difference(knownfailpkgs)]
 
     def keyfunc(x, pkgsdb=pkgsdb, logdict=logdict):
-
-        pkg_obj =  pkgsdb.get_package(get_pkg(x.pkgspec))
-
-        if not pkg_obj is None:
-            rdeps = pkg_obj.rrdep_count()
-        else:
+        try:
+            pkg_name = get_pkg(x.pkgspec)
+            rdeps = pkgsdb.rrdep_count(pkgsdb.get_package(pkg_name))
+        except (KeyError, AttributeError):
             rdeps = 0
 
         is_failed = get_where(logdict[x.pkgspec]) == "fail"
@@ -490,9 +487,6 @@ def process_section(section, config, problem_list,
                     section_config.get_distro(),
                     section_config.get_area(),
                     section_config.get_arch()))
-
-        pkgsdb.compute_package_states()
-        pkgsdb.calc_rrdep_counts()
 
     failures = FailureManager(logdict)
     failures.sort_by_bugged_and_rdeps(pkgsdb)
