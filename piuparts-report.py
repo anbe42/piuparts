@@ -1238,19 +1238,18 @@ class Section:
     def write_state_pages(self):
         for state in self._binary_db.get_active_states():
             logging.debug("Writing page for %s" % state)
-            with_counts = False
-            aside = ""
             vlist = ""
             if state in self._binary_db.get_error_states():
                 with_counts = True
                 aside = " (reverse deps, blocked pkgs)"
+                sort_key = lambda x: (-self._binary_db.block_count(x), x["Package"])
+            else:
+                with_counts = False
+                aside = ""
+                sort_key = lambda x: x["Package"]
 
             names = self._binary_db.get_pkg_names_in_state(state)
             packages = [self._binary_db.get_package(name) for name in names]
-            if with_counts:
-                sort_key = lambda x: (-self._binary_db.block_count(x), x["Package"])
-            else:
-                sort_key = lambda x: x["Package"]
             packages.sort(key=sort_key)
 
             for package in packages:
