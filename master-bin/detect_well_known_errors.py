@@ -402,7 +402,9 @@ def update_tpl(basedir, section, problem, failures, logdict, ftpl, ptpl, pkgsdb)
                                    })
 
     if len(pkg_text):
-        pf = open(os.path.join(basedir, failures[0].problem[:-5] + TPL_EXT), 'w')
+        tplpath = replace_ext(os.path.join(basedir, failures[0].problem), TPL_EXT)
+        pf = open(tplpath, 'w')
+
         tpl_text = populate_tpl(ptpl, {
                                 'HEADER': problem.HEADER,
                                 'SECTION': section,
