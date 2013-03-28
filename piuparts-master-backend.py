@@ -55,6 +55,9 @@ def setup_logging(log_level, log_file_name):
     else:
         log_handler = logging.StreamHandler(sys.stderr)
 
+    log_formatter = logging.Formatter( datefmt="%H:%M:%S" )
+    log_handler.setFormatter( log_formatter )
+
     logger.addHandler(log_handler)
     logger.setLevel(log_level)
 
