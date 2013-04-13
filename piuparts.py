@@ -1227,6 +1227,19 @@ class Chroot:
         added = [ln for ln in post_install_diversions if not ln in pre_install_diversions]
         return (removed, added)
 
+    def get_mounts(self):
+        """Get a list of mounts under the chroot"""
+        mf = open('/proc/mounts', 'r')
+        mounts = []
+
+        for line in mf.readlines():
+            mtch = re.match( "[^ ]+ (%s[^ ]+) " % self.name, line )
+            if mtch:
+                mounts.append( mtch.group(1) )
+
+        mf.close()
+        return mounts
+
     def check_debsums(self):
         (status, output) = run(["debsums", "--root", self.name, "-ac"], ignore_errors=True)
         if status != 0:
@@ -2256,6 +2269,7 @@ def install_purge_test(chroot, chroot_state, package_files, packages, extra_pack
             chroot_state_with_deps["tree"] = deps_info
             chroot_state_with_deps["selections"] = chroot.get_selections()
             chroot_state_with_deps["diversions"] = chroot.get_diversions()
+            chroot_state_with_deps["mounts"] = chroot.get_mounts()
 
     chroot.check_for_no_processes()
     chroot.check_for_broken_symlinks()
@@ -2407,6 +2421,7 @@ def install_and_upgrade_between_distros(package_files, packages_qualified):
         chroot_state["tree"] = chroot.save_meta_data()
         chroot_state["selections"] = chroot.get_selections()
         chroot_state["diversions"] = chroot.get_diversions()
+        chroot_state["mounts"] = chroot.get_mounts()
 
         if settings.save_end_meta:
             # save root_info and selections
@@ -2932,6 +2947,7 @@ def process_packages(package_list):
         chroot_state["tree"] = chroot.save_meta_data()
         chroot_state["selections"] = chroot.get_selections()
         chroot_state["diversions"] = chroot.get_diversions()
+        chroot_state["mounts"] = chroot.get_mounts()
 
         if not settings.no_install_purge_test:
             extra_packages = chroot.get_known_packages(settings.extra_old_packages)
