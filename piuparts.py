@@ -2194,6 +2194,14 @@ def check_results(chroot, chroot_state, file_owners, deps_info=None):
                    "than by packages\nbeing explicitly tested.\n")
             logging.info(msg)
 
+    new_mounts = set(chroot.get_mounts()).difference(set(chroot_state["mounts"]))
+    if new_mounts:
+        msgtxt = "FAIL: New filesystem mounts remain after purging:"
+        for mnt in sorted(new_mounts):
+            msgtxt += "\n  %s" % mnt
+        logging.error((msgtxt))
+        ok = False
+
     return ok
 
 
