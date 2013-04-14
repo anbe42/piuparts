@@ -834,7 +834,7 @@ class Chroot:
             self.terminate_running_processes()
             if not settings.schroot:
                 self.unmount_selinux()
-                self.unmount_proc()
+                self.unmount_all()
             if settings.lvm_volume:
                 logging.debug('Unmounting and removing LVM snapshot %s' % self.lvm_snapshot_name)
                 run(['umount', self.name])
@@ -1467,11 +1467,11 @@ class Chroot:
         """Mount /proc inside chroot."""
         self.run(["mount", "-t", "proc", "proc", "/proc"])
 
-    def unmount_proc(self):
-        """Unmount /proc inside chroot."""
-        self.run(["umount", "/proc"], ignore_errors=True)
-        for bindmount in settings.bindmounts:
-            run(["umount", self.relative(bindmount)], ignore_errors=True)
+    def unmount_all(self):
+        """Unmount all mounts inside chroot."""
+        for mnt in sorted(self.get_mounts(), reverse=True):
+            short_mnt = mnt[len(self.name):]
+            self.run(["umount", short_mnt], ignore_errors=True)
 
     def is_ignored(self, pathname):
         """Is a file (or dir or whatever) to be ignored?"""
@@ -1890,7 +1890,7 @@ class VirtServ(Chroot):
 
     def check_for_no_processes(self): pass # ?!
     def mount_proc(self): pass
-    def unmount_proc(self): pass
+    def unmount_all(self): pass
 
 def selinux_enabled(enabled_test="/usr/sbin/selinuxenabled"):
     if os.access(enabled_test, os.X_OK):
