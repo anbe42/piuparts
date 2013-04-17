@@ -3,31 +3,31 @@
 #
 # cleanup $HTDOCS/daily.lock
 #
-@reboot @sharedir@/piuparts/master/master_cleanup
+@reboot piupartsm @sharedir@/piuparts/master/master_cleanup
 
 #
 # generate reports twice a day
 #  (dinstall runs 1|7|13|19:52, so this is long after mirror pushes...)
 #
-0  0,12 * * * @sharedir@/piuparts/master/generate_daily_report
+0  0,12 * * * piupartsm @sharedir@/piuparts/master/generate_daily_report
 
 #
 # reschedule old logs twice a day
 #
-00 3,15 * * * @sharedir@/piuparts/master/reschedule_oldest_logs
+00 3,15 * * * piupartsm @sharedir@/piuparts/master/reschedule_oldest_logs
 
 #
 # monitor for problems once a day
 # - these may result in packages being retested
 # - if that's not the case, run them from within generate_daily_report
 #
-30 21 * * * @sharedir@/piuparts/master/detect_network_issues
-45 21 * * * @sharedir@/piuparts/master/detect_piuparts_issues
-0  22 * * * @sharedir@/piuparts/master/detect_archive_issues
-30 22 * * * @sharedir@/piuparts/master/report_untestable_packages
-0  23 * * * @sharedir@/piuparts/master/report_stale_reserved_packages
+30 21 * * * piupartsm @sharedir@/piuparts/master/detect_network_issues
+45 21 * * * piupartsm @sharedir@/piuparts/master/detect_piuparts_issues
+0  22 * * * piupartsm @sharedir@/piuparts/master/detect_archive_issues
+30 22 * * * piupartsm @sharedir@/piuparts/master/report_untestable_packages
+0  23 * * * piupartsm @sharedir@/piuparts/master/report_stale_reserved_packages
 
 #
 # misc
 #
-0  2 * * * @sharedir@/piuparts/master/prepare_backup
+0  2 * * * piupartsm @sharedir@/piuparts/master/prepare_backup
