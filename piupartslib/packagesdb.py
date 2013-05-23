@@ -370,9 +370,6 @@ class PackagesDB:
         logging.info("nothing to recycle")
         return False
 
-    def get_mtime(self):
-        return max([os.path.getmtime(sdir) for sdir in self._all])
-
     def load_packages_urls(self, urls):
         pf = PackagesFile()
         pf.load_packages_urls(urls)
