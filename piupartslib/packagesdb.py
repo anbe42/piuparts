@@ -184,6 +184,9 @@ class PackagesFile(UserDict.UserDict):
 
 class LogDB:
 
+    def __init__(self, prefix=""):
+        self._prefix = prefix
+
     def exists(self, pathname):
         try:
             cache = self.exists_cache
@@ -311,7 +314,7 @@ class PackagesDB:
         self.prefix = prefix
         self._packages_files = []
         self._ready_for_testing = None
-        self._logdb = logdb or LogDB()
+        self._logdb = logdb or LogDB(prefix)
         self._packages = None
         self._in_state = None
         self._package_state = {}
