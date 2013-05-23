@@ -218,7 +218,14 @@ class LogDB:
     def remove_file(self, pathname):
         os.remove(pathname)
 
+    def _check_for_acceptability_as_filename(self, str):
+        if "/" in str:
+            raise Exception("'/' in (partial) filename: %s" % str)
+
     def _log_name(self, package, version):
+        self._check_for_acceptability_as_filename( package )
+        self._check_for_acceptability_as_filename( version )
+
         return "%s_%s.log" % (package, version)
 
     def log_exists(self, package, subdirs):
@@ -706,22 +713,14 @@ class PackagesDB:
                 return p
         return None
 
-    def _check_for_acceptability_as_filename(self, str):
-        if "/" in str:
-            raise Exception("'/' in (partial) filename: %s" % str)
-
     def _record_submission(self, category, package, version):
         with open(self._submissions, "a") as submissions:
             submissions.write("%d %s %s %s\n" % (time.time(), category, package, version))
 
     def unreserve_package(self, package, version):
-        self._check_for_acceptability_as_filename(package)
-        self._check_for_acceptability_as_filename(version)
         self._logdb.remove(self._reserved, package, version)
 
     def pass_package(self, package, version, log):
-        self._check_for_acceptability_as_filename(package)
-        self._check_for_acceptability_as_filename(version)
         if self._logdb.create(self._ok, package, version, log):
             self._logdb.remove(self._reserved, package, version)
             self._record_submission("pass", package, version)
@@ -729,8 +728,6 @@ class PackagesDB:
             raise LogfileExists(self._ok, package, version)
 
     def fail_package(self, package, version, log):
-        self._check_for_acceptability_as_filename(package)
-        self._check_for_acceptability_as_filename(version)
         if self._logdb.create(self._fail, package, version, log):
             self._logdb.remove(self._reserved, package, version)
             self._record_submission("fail", package, version)
@@ -738,8 +735,6 @@ class PackagesDB:
             raise LogfileExists(self._fail, package, version)
 
     def make_package_untestable(self, package, version, log):
-        self._check_for_acceptability_as_filename(package)
-        self._check_for_acceptability_as_filename(version)
         if self._logdb.create(self._evil, package, version, log):
             self._logdb.remove(self._reserved, package, version)
             self._record_submission("untestable", package, version)
