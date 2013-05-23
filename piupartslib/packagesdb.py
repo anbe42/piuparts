@@ -207,6 +207,11 @@ class LogDB:
         self._create_subdirs()
         self._collect_files()
 
+    def _create_subdirs(self):
+        for sdir in self._ldirs:
+            if not os.path.exists(sdir):
+                os.makedirs(sdir)
+
     def exists(self, pathname):
         try:
             cache = self.exists_cache
@@ -344,7 +349,6 @@ class PackagesDB:
         self.set_subdirs(ok="pass", fail="fail", evil="untestable",
                          reserved="reserved", morefail=["bugged", "affected"],
                          recycle="recycle")
-        self.create_subdirs()
 
     def set_subdirs(self, ok=None, fail=None, evil=None, reserved=None, morefail=None, recycle=None):
         # Prefix all the subdirs with the prefix
@@ -372,11 +376,6 @@ class PackagesDB:
         if recycle:
             self._recycle = pformat % recycle
             self._all.append(self._recycle)
-
-    def create_subdirs(self):
-        for sdir in self._all:
-            if not os.path.exists(sdir):
-                os.makedirs(sdir)
 
     def enable_recycling(self):
         if self._recycle_mode:
