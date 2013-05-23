@@ -184,8 +184,28 @@ class PackagesFile(UserDict.UserDict):
 
 class LogDB:
 
+    # define the subdirectories that hold log files, and define
+    # a "log file state" for each (used by PackagesDB)
+    _lf_statedir = {
+        "successfully-tested": ["pass"],
+        "failed-testing": ["fail", "bugged", "affected"],
+        "cannot-be-tested": ["untestable"],
+        "reserved": "reserved",
+        "recycle": "recycle",
+
     def __init__(self, prefix=""):
         self._prefix = prefix
+
+        self._dirs = set()
+        self._lf_dirstate = {}
+        for state in self._lf_statedir:
+            self._dirs |= set( self._lf_states[state] )
+
+            for dir in self._lf_statedir[state]:
+                self._lf_dirstate[dir] = state
+
+        self._create_subdirs()
+        self._collect_files()
 
     def exists(self, pathname):
         try:
