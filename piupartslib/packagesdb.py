@@ -277,22 +277,13 @@ class PackagesDB:
         "dependency-failed-testing",
         "dependency-cannot-be-tested",
         "dependency-does-not-exist",
-        "circular-dependency",  # obsolete
         "unknown",
-        "unknown-preferred-alternative",  # obsolete
-        "no-dependency-from-alternatives-exists",  # obsolete
         #"does-not-exist",  # can only happen as query result for a dependency
     ]
 
     _good_states = [
         "successfully-tested",
         "essential-required",
-    ]
-
-    _obsolete_states = [
-        "circular-dependency",
-        "unknown-preferred-alternative",
-        "no-dependency-from-alternatives-exists",
     ]
 
     _propagate_error_state = {
@@ -585,7 +576,7 @@ class PackagesDB:
         return self._states
 
     def get_active_states(self):
-        return [x for x in self._states if not x in self._obsolete_states]
+        return self._states
 
     def get_error_states(self):
         return [x for x in self._propagate_error_state.keys() if x in self._states]
