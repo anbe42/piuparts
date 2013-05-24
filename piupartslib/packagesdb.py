@@ -385,7 +385,6 @@ class PackagesDB:
     }
 
     def __init__(self, logdb=None, prefix=None):
-        self.prefix = prefix
         self._packages_files = []
         self._ready_for_testing = None
         self._logdb = logdb or LogDB(prefix)
@@ -395,38 +394,9 @@ class PackagesDB:
         self._dependency_databases = []
         self._recycle_mode = False
         self._candidates_for_testing = None
-        self.set_subdirs(ok="pass", fail="fail", evil="untestable",
-                         reserved="reserved", morefail=["bugged", "affected"],
-                         recycle="recycle")
-
-    def set_subdirs(self, ok=None, fail=None, evil=None, reserved=None, morefail=None, recycle=None):
-        # Prefix all the subdirs with the prefix
-        if self.prefix:
-            pformat = self.prefix + "/%s"
-        else:
-            pformat = "%s"
-        self._submissions = pformat % "submissions.txt"
-        self._all = []
-        if ok:
-            self._ok = pformat % ok
-            self._all.append(self._ok)
-        if fail:
-            self._fail = pformat % fail
-            self._all.append(self._fail)
-        if evil:
-            self._evil = pformat % evil
-            self._all.append(self._evil)
-        if reserved:
-            self._reserved = pformat % reserved
-            self._all.append(self._reserved)
-        if morefail:
-            self._morefail = [pformat % s for s in morefail]
-            self._all.extend(self._morefail)
-        if recycle:
-            self._recycle = pformat % recycle
-            self._all.append(self._recycle)
 
     def enable_recycling(self):
+        # todo - how to handle recycle mode with new LogDB?
         if self._recycle_mode:
             return True
         if self._packages is not None:
@@ -757,8 +727,8 @@ class PackagesDB:
             self._candidates_for_testing = [self.get_package(pn)
                     for pn in self.get_pkg_names_in_state("waiting-to-be-tested")]
             self._candidates_for_testing = [p for p in self._candidates_for_testing
-                    if not self._logdb.log_exists(p, [self._reserved]) or \
-                            self._logdb.log_exists(p, [self._recycle])]
+                    if self._logdb.get_state( p['Package'],p['Version'] \
+                            not in ["reserved", "recycle"]]
             if len(self._candidates_for_testing) > 1:
                 self.calc_rrdep_counts()
                 tuples = [(p.waiting_count(), random.random(), p)
@@ -793,19 +763,19 @@ class PackagesDB:
         if self._logdb.createlog("successfully-tested", package, version, log):
             self._record_submission("pass", package, version)
         else:
-            raise LogfileExists(self._ok, package, version)
+            raise LogfileExists("successfully-tested", package, version)
 
     def fail_package(self, package, version, log):
         if self._logdb.createlog("failed-testing", package, version, log):
             self._record_submission("fail", package, version)
         else:
-            raise LogfileExists(self._fail, package, version)
+            raise LogfileExists("failed-testing", package, version)
 
     def make_package_untestable(self, package, version, log):
         if self._logdb.createlog("cannot-be-tested", package, version, log):
             self._record_submission("untestable", package, version)
         else:
-            raise LogfileExists(self._evil, package, version)
+            raise LogfileExists("cannot-be-tested", package, version)
 
     def calc_rrdep_counts(self):
         """Calculate recursive reverse dependency counts for Packages"""
