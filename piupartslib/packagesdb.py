@@ -252,34 +252,6 @@ class LogDB:
 
         return( state )
 
-    def exists(self, pathname):
-        try:
-            cache = self.exists_cache
-        except AttributeError:
-            self.exists_cache = {}
-            cache = self.exists_cache
-        if pathname not in cache:
-            cache[pathname] = os.path.exists(pathname)
-        return cache[pathname]
-
-    def _evict(self, pathname):
-        try:
-            cache = self.exists_cache
-            if pathname in cache:
-                del cache[pathname]
-        except AttributeError:
-            pass
-
-    def bulk_load_dir(self, dirname):
-        try:
-            cache = self.exists_cache
-        except AttributeError:
-            self.exists_cache = {}
-            cache = self.exists_cache
-        for basename in os.listdir(dirname):
-            if basename.endswith(".log"):
-                cache[os.path.join(dirname, basename)] = True
-
     def open_file(self, pathname, mode):
         return file(pathname, mode)
 
@@ -295,13 +267,6 @@ class LogDB:
         self._check_for_acceptability_as_filename( version )
 
         return( self._pkgspec(package, version) + self._ext )
-
-    def log_exists(self, package, subdirs):
-        log_name = self._log_name(package["Package"], package["Version"])
-        for subdir in subdirs:
-            if self.exists(os.path.join(subdir, log_name)):
-                return True
-        return False
 
     def _get_ldir(dir):
         return(os.path.join(self._prefix, dir))
@@ -335,6 +300,7 @@ class LogDB:
         return True
 
     def remove(self, subdir, package, version):
+        # todo - this needs to be brought up to date
         full_name = os.path.join(subdir, self._log_name(package, version))
         if self.exists(full_name):
             self.remove_file(full_name)
