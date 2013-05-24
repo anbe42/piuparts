@@ -483,14 +483,17 @@ class PackagesDB:
         return circular
 
     def _lookup_package_state(self, package):
+        # todo - recycle_mode needs to be considered for logdb. Is the current restriction,
+        # that a packages log file entry appears in only one directory, including recycle,
+        # valid?
         if self._recycle_mode and self._logdb.log_exists(package, [self._recycle]):
             return "unknown"
-        if self._logdb.log_exists(package, [self._ok]):
-            return "successfully-tested"
-        if self._logdb.log_exists(package, [self._fail] + self._morefail):
-            return "failed-testing"
-        if self._logdb.log_exists(package, [self._evil]):
-            return "cannot-be-tested"
+
+        logstate = self._logdb.get_state( package["Package"], package["Version] )
+
+        if logstate in self._states:
+            return logstate
+
         if not package.is_testable():
             return "essential-required"
 
