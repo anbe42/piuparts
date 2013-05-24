@@ -195,6 +195,9 @@ class LogDB:
 
     def __init__(self, prefix=""):
         self._prefix = prefix
+        self._ext = ".log"
+
+        self._pkgspecs = {}
 
         self._dirs = set()
         self._lf_dirstate = {}
@@ -211,6 +214,22 @@ class LogDB:
         for sdir in self._ldirs:
             if not os.path.exists(sdir):
                 os.makedirs(sdir)
+
+    def _is_type( self, filepath ):
+        return ( os.splitext( filename[1] ) == self._ext )
+
+    def _file2pkgspec(self, filename):
+        return( os.splitext( filename[0] ) )
+
+    def _add_pkg( self, pkgspec, dir ):
+        # to do - handle duplicate log files, by deleting the older copy
+        self.pkgspecs[pkgspec] = dir
+
+    def _collect_files(self):
+        for dir in self._dirs:
+            for fl in os.listdir( os.path.join(prefix, dir) ):
+                if self._is_type(fl):
+                    self._add_pkg( self._file2pkgspec(fl), dir )
 
     def exists(self, pathname):
         try:
