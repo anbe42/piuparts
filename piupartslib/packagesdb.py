@@ -303,8 +303,14 @@ class LogDB:
                 return True
         return False
 
-    def create(self, subdir, package, version, contents):
-        (fd, temp_name) = tempfile.mkstemp(dir=subdir)
+    def _get_ldir(dir):
+        return(os.path.join(self._prefix, dir))
+
+    def _get_lpath(dir, package, version):
+        return(os.path.join(self._get_ldir(dir), self._log_name(package, version)))
+
+    def createlog(self, state, package, version, contents):
+        (fd, temp_name) = tempfile.mkstemp(dir=self._get_ldir(dir))
         if os.write(fd, contents) != len(contents):
             raise Exception("Partial write?")
         os.close(fd)
@@ -315,14 +321,17 @@ class LogDB:
         os.umask(umask)
         os.chmod(temp_name, 0666 & ~umask)
 
-        full_name = os.path.join(subdir, self._log_name(package, version))
+        full_name = self._get_lpath(dir, package, versionn)
         try:
             os.link(temp_name, full_name)
         except OSError:
             return False
         finally:
             os.remove(temp_name)
-        self._evict(full_name)
+
+        # rely on _add_pkg() to eliminate any existing log
+        self._add_pkg( self._pkgspec(package, version), dir )
+
         return True
 
     def remove(self, subdir, package, version):
@@ -774,7 +783,7 @@ class PackagesDB:
                 continue
             if self._logdb.log_exists(p, [self._recycle]):
                 self._logdb.remove(self._recycle, p["Package"], p["Version"])
-            if self._logdb.create(self._reserved, p["Package"], p["Version"], ""):
+            if self._logdb.createlog("reserved", p["Package"], p["Version"], ""):
                 return p
         return None
 
@@ -786,21 +795,21 @@ class PackagesDB:
         self._logdb.remove(self._reserved, package, version)
 
     def pass_package(self, package, version, log):
-        if self._logdb.create(self._ok, package, version, log):
+        if self._logdb.createlog("successfully-tested", package, version, log):
             self._logdb.remove(self._reserved, package, version)
             self._record_submission("pass", package, version)
         else:
             raise LogfileExists(self._ok, package, version)
 
     def fail_package(self, package, version, log):
-        if self._logdb.create(self._fail, package, version, log):
+        if self._logdb.createlog("failed-testing", package, version, log):
             self._logdb.remove(self._reserved, package, version)
             self._record_submission("fail", package, version)
         else:
             raise LogfileExists(self._fail, package, version)
 
     def make_package_untestable(self, package, version, log):
-        if self._logdb.create(self._evil, package, version, log):
+        if self._logdb.createlog("cannot-be-tested", package, version, log):
             self._logdb.remove(self._reserved, package, version)
             self._record_submission("untestable", package, version)
         else:
