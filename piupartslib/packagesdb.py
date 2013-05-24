@@ -773,16 +773,10 @@ class PackagesDB:
     def reserve_package(self):
         all_but_recycle = [x for x in self._all if x != self._recycle]
         for p in self._find_packages_ready_for_testing():
-            if self._recycle_mode and self._logdb.log_exists(p, [self._recycle]):
-                for vdir in all_but_recycle:
-                    if self._logdb.log_exists(p, [vdir]):
-                        self._logdb.remove(vdir, p["Package"], p["Version"])
-                        logging.info("Recycled %s %s %s" % (vdir, p["Package"], p["Version"]))
-            if self._logdb.log_exists(p, all_but_recycle):
-                self._remove_unavailable_candidate(p)
-                continue
-            if self._logdb.log_exists(p, [self._recycle]):
-                self._logdb.remove(self._recycle, p["Package"], p["Version"])
+            # again, is there a need to handle recycle_mode separately?
+            # I'm going to assume no, beyond a possible need to add a call to LogDB
+            # to clear the recycle directory if we are not in the mode.
+            # this is a todo.
             if self._logdb.createlog("reserved", p["Package"], p["Version"], ""):
                 return p
         return None
@@ -792,25 +786,23 @@ class PackagesDB:
             submissions.write("%d %s %s %s\n" % (time.time(), category, package, version))
 
     def unreserve_package(self, package, version):
+        # todo - need to have a logdb.remove() for this case
         self._logdb.remove(self._reserved, package, version)
 
     def pass_package(self, package, version, log):
         if self._logdb.createlog("successfully-tested", package, version, log):
-            self._logdb.remove(self._reserved, package, version)
             self._record_submission("pass", package, version)
         else:
             raise LogfileExists(self._ok, package, version)
 
     def fail_package(self, package, version, log):
         if self._logdb.createlog("failed-testing", package, version, log):
-            self._logdb.remove(self._reserved, package, version)
             self._record_submission("fail", package, version)
         else:
             raise LogfileExists(self._fail, package, version)
 
     def make_package_untestable(self, package, version, log):
         if self._logdb.createlog("cannot-be-tested", package, version, log):
-            self._logdb.remove(self._reserved, package, version)
             self._record_submission("untestable", package, version)
         else:
             raise LogfileExists(self._evil, package, version)
