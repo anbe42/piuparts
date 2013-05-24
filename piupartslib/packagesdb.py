@@ -221,6 +221,9 @@ class LogDB:
     def _file2pkgspec(self, filename):
         return( os.splitext( filename[0] ) )
 
+    def _pkgspec( pkgname, version ):
+        return "_".join(pkgname, version)
+
     def _add_pkg( self, pkgspec, dir ):
         # to do - handle duplicate log files, by deleting the older copy
         self.pkgspecs[pkgspec] = dir
@@ -230,6 +233,24 @@ class LogDB:
             for fl in os.listdir( os.path.join(prefix, dir) ):
                 if self._is_type(fl):
                     self._add_pkg( self._file2pkgspec(fl), dir )
+
+    def get_dir( self, package, version ):
+        dir = None
+        pkgspec = _pkgspec( package, version )
+
+        if pkgspec in self._pkgspecs:
+            dir = self._pckspecs[pkgspec]
+
+        return( dir )
+
+    def get_state( self, package, version ):
+        state = None
+        dir = self.get_dir(package, version)
+
+        if dir in self._lf_dirstate:
+            state = self._lf_dirstate[dir]
+
+        return( state )
 
     def exists(self, pathname):
         try:
@@ -273,7 +294,7 @@ class LogDB:
         self._check_for_acceptability_as_filename( package )
         self._check_for_acceptability_as_filename( version )
 
-        return "%s_%s.log" % (package, version)
+        return( self._pkgspec(package, version) + self._ext )
 
     def log_exists(self, package, subdirs):
         log_name = self._log_name(package["Package"], package["Version"])
