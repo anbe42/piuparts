@@ -12,6 +12,7 @@ piuparts (0.76) UNRELEASED; urgency=medium
     - Add --install-suggests option.
     - Fall back to generating the reference chroot state on-the-fly if the
       --end-meta file is missing.
+    - Refactor internal handling of reference chroot state.
     - Make logged command lines shell-safe with pipes.quote().
   * piuparts.conf:
     - Use --warn-on-install-over-symlink for tests ending before stretch.
