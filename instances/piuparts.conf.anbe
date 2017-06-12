@@ -411,6 +411,7 @@ max-tgz-age = 2592000
 piuparts-flags =
 	%(flags-default)s
 	%(flags-start-squeeze)s
+	--keyring /usr/share/keyrings/debian-archive-removed-keys.gpg
 distro = None
 upgrade-test-distros = squeeze
 arch = amd64
@@ -423,6 +424,7 @@ max-tgz-age = 0
 piuparts-flags =
 	%(flags-default)s
 	%(flags-start-squeeze)s
+	--keyring /usr/share/keyrings/debian-archive-removed-keys.gpg
 distro = None
 upgrade-test-distros = squeeze
 arch = i386
@@ -435,6 +437,7 @@ max-tgz-age = 0
 piuparts-flags =
 	%(flags-default)s
 	%(flags-start-lenny)s
+	--keyring /usr/share/keyrings/debian-archive-removed-keys.gpg
 distro = None
 upgrade-test-distros = lenny
 arch = amd64
@@ -447,6 +450,7 @@ max-tgz-age = 0
 piuparts-flags =
 	%(flags-default)s
 	%(flags-start-lenny)s
+	--keyring /usr/share/keyrings/debian-archive-removed-keys.gpg
 distro = None
 upgrade-test-distros = lenny
 arch = i386

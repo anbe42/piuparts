@@ -1,6 +1,8 @@
 piuparts (0.77.1) UNRELEASED; urgency=medium
 
   * COMMITS THAT SHOULD BE BACKPORTED TO STRETCH
+  * piuparts.conf:
+    - Set keyring for archived distros to debian-archive-removed-keys.gpg.
 
  -- Andreas Beckmann <anbe@debian.org>  Wed, 14 Jun 2017 00:12:59 +0200
 
