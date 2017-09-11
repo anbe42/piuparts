@@ -64,6 +64,7 @@ Depends:
  adduser,
  openssh-server,
  python-debianbts,
+ python-setproctitle,
  tango-icon-theme,
  xz-utils,
  python-yaml,

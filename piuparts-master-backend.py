@@ -32,6 +32,7 @@ import fcntl
 import time
 import random
 from urllib2 import URLError
+from setproctitle import setproctitle
 
 import piupartslib
 from piupartslib.packagesdb import LogfileExists
@@ -180,6 +181,8 @@ class Master(Protocol):
             fcntl.flock(self._lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except IOError:
             return False
+
+        setproctitle("piuparts-master [%s]" % section)
 
         self._section = section
 
