@@ -40,6 +40,7 @@ import random
 import fcntl
 from urllib2 import HTTPError, URLError
 from collections import deque
+from setproctitle import setproctitle
 
 # if python-rpy2 ain't installed, we don't draw fancy graphs
 try:
@@ -1829,6 +1830,7 @@ def main():
         create_file(os.path.join(output_directory, "sections.yaml"),
             yaml.dump(section_names, default_flow_style=False))
         todo = deque([(s, 0) for s in process_section_names])
+        num_sections = len(todo)
         while len(todo):
             (section_name, next_try) = todo.popleft()
             now = time.time()
@@ -1836,6 +1838,8 @@ def main():
                 logging.info("Sleeping while section is busy")
                 time.sleep(max(30, next_try - now) + 30)
             try:
+                setproctitle("piuparts-report (%d/%d) [%s]" %
+                        (num_sections - len(todo), num_sections, section_name))
                 section_directory = os.path.join(master_directory, section_name)
                 if not os.path.exists(section_directory):
                     raise MissingSection("", section_name)
@@ -1857,6 +1861,7 @@ def main():
 
         # static pages
         logging.debug("Writing static pages")
+        setproctitle("piuparts-report (static pages)")
         section_navigation = create_section_navigation(section_names, "sid", doc_root)
         for page in ("index", "news", "bug_howto"):
             tpl = os.path.join(output_directory, page + ".tpl")

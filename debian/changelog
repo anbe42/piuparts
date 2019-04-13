@@ -39,6 +39,8 @@ piuparts (0.99) UNRELEASED; urgency=medium
       metadata between slave instances.
   * piuparts-report.py:
     - Omit states with 0 packages from section summaries.
+  * piuparts-{master,analyze,report}.py, dwke.py:
+    - Use setproctitle to indicate progress and current section.
   * scripts/{post_chroot_unpack,pre_distupgrade}_allow_unauthenticated:
     - Disable Check-Valid-Until for wheezy/updates and jessie-backports.
   * scripts/post_distupgrade_exceptions:
