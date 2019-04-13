@@ -28,6 +28,7 @@ import logging
 import argparse
 import fcntl
 from collections import deque
+from setproctitle import setproctitle
 
 import piupartslib
 from piupartslib.conf import MissingSection
@@ -110,6 +111,7 @@ def detect_well_known_errors(sections, config, problem_list, recheck, recheck_fa
     total_del = 0
     total_add = 0
     todo = deque([(s, 0) for s in sections])
+    num_sections = len(todo)
     while len(todo):
         (section, next_try) = todo.popleft()
         now = time.time()
@@ -117,6 +119,9 @@ def detect_well_known_errors(sections, config, problem_list, recheck, recheck_fa
             # sleeping, section has been tried recently
             time.sleep(max(30, next_try - now) + 30)
         try:
+            setproctitle("detect_well_known_errors (%d/%d) [%s]" %
+                    (num_sections - len(todo), num_sections, section))
+
             (del_cnt, add_cnt) = \
                 process_section(section, config, problem_list,
                                 recheck, recheck_failed)
