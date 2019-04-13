@@ -43,6 +43,7 @@ import debianbts
 import apt_pkg
 from signal import alarm, signal, SIGALRM
 from collections import deque
+from setproctitle import setproctitle
 
 import piupartslib.conf
 from piupartslib.conf import MissingSection
@@ -335,6 +336,7 @@ def main():
                 sys.exit(0)
 
         todo = deque([(s, 0) for s in sections])
+        num_sections = len(todo)
         while len(todo):
             (section_name, next_try) = todo.popleft()
             now = time.time()
@@ -344,6 +346,8 @@ def main():
             print(time.strftime("%a %b %2d %H:%M:%S %Z %Y", time.localtime()))
             print("%s:" % section_name)
             try:
+                setproctitle("piuparts-analyze (%d/%d) [%s]" %
+                        (num_sections - len(todo), num_sections, section_name))
                 section_directory = os.path.join(master_directory, section_name)
                 if not os.path.exists(section_directory):
                     raise MissingSection("", section_name)
