@@ -31,6 +31,7 @@ import fcntl
 import time
 import random
 from urllib2 import URLError
+from setproctitle import setproctitle
 
 import piupartslib
 from piupartslib.packagesdb import LogfileExists
@@ -180,6 +181,8 @@ class Master(Protocol):
         except IOError:
             return False
 
+        setproctitle("piuparts-master [%s]" % section)
+
         self._section = section
 
         logging.debug(timestamp() + " switching logfile")
@@ -293,6 +296,7 @@ class Master(Protocol):
     def _recycle(self, command, args):
         self._check_args(0, command, args)
         if self._binary_db.enable_recycling():
+            setproctitle("piuparts-master [%s]*" % self._section)
             self._idle_stamp = os.path.join(self._section, "recycle.stamp")
             self._recycle_mode = True
             self._short_response("ok")
